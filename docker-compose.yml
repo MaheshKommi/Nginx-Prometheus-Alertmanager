@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: 'prometheus-server'
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/nginx.rules:/etc/prometheus/nginx.rules
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  nginx-server:
+    image: nginx
+    container_name: 'nginx-server'
+    ports:
+      - 8080:80
+    volumes: 
+    - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    - ./nginx/index.html:/etc/nginx/html/index.html
+  
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter
+    container_name: 'nginx-exporter-prometheus'
+    ports:
+      - 9113:9113
+    environment:
+      - SCRAPE_URI=http://nginx-server/metrics
+      - NGINX_RETRIES=10
+      - TELEMETRY_PATH=/prometheus
+
+  alert-manager:
+    image: prom/alertmanager
+    container_name: 'alertmanager-server'
+    ports:
+      - 9093:9093
+

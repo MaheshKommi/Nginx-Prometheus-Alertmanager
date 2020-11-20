@@ -1,0 +1,11 @@
+groups:
+- name: nginx-available
+  rules:
+  - alert: nginxisDown
+    expr: nginx_up == 0
+    for: 10s
+    labels:
+      severity: "high"
+    annotations:
+      summary: Nginx Availability alert.
+      description: "Checks if the Nginx exporter shows the Nginx server as available"
